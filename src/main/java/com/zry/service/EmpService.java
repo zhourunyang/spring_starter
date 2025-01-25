@@ -5,6 +5,7 @@ import com.zry.pojo.EmpQueryParam;
 import com.zry.pojo.PageResult;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface EmpService {
 
@@ -28,4 +29,23 @@ public interface EmpService {
      * @param emp
      */
     void save(Emp emp);
+
+    /**
+     * 批量删除员工
+     * @param ids
+     */
+    void deleteByIds(List<Integer> ids);
+
+    /**
+     * 根据ID查询员工的详细信息(基本信息与工作经历信息）
+     * @param id
+     * @return
+     */
+    Emp getInfo(Integer id);
+
+    /**
+     * 修改员工信息
+     * @param emp
+     */
+    void update(Emp emp);
 }

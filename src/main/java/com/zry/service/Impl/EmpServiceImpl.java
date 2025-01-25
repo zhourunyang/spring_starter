@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -87,7 +88,7 @@ public class EmpServiceImpl implements EmpService {
         return new PageResult<>(p.getTotal(),p.getResult());
     }
 
-    @Transactional   //spring事务管理
+    @Transactional(rollbackFor = Exception.class)   //spring事务管理
     @Override
     public void save(Emp emp) {
 
@@ -112,7 +113,42 @@ public class EmpServiceImpl implements EmpService {
             EmpLog empLog = new EmpLog(null,LocalDateTime.now(),"新增员工" + emp);
             empLogService.insertLog(empLog);
         }
-
-
     }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void deleteByIds(List<Integer> ids) {
+        //删除员工的基本信息
+        empMapper.deleteByIds(ids);
+
+        //删除员工的工作经历信息
+        empExprMapper.deleteByEmpIds(ids);
+    }
+
+    @Override
+    public Emp getInfo(Integer id) {
+        return empMapper.getById(id);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void update(Emp emp) {
+        //根据id修改员工的基本信息
+        emp.setUpdateTime(LocalDateTime.now());
+        empMapper.updateById(emp);
+
+        //根据id修改员工的工作经历信息
+        //先删除
+        empExprMapper.deleteByEmpIds(Arrays.asList(emp.getId()));
+        //后添加
+        List<EmpExpr> exprList = emp.getExprList();
+        if(!CollectionUtils.isEmpty(exprList)){
+            exprList.forEach(empExpr ->{
+                empExpr.setEmpId(emp.getId());
+            });
+            empExprMapper.insertBatch(exprList);
+        }
+    }
+
 }
