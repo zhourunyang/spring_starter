@@ -7,6 +7,8 @@ import com.zry.mapper.EmpMapper;
 import com.zry.pojo.*;
 import com.zry.service.EmpLogService;
 import com.zry.service.EmpService;
+import com.zry.utils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +17,11 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 public class EmpServiceImpl implements EmpService {
 
@@ -149,6 +154,32 @@ public class EmpServiceImpl implements EmpService {
             });
             empExprMapper.insertBatch(exprList);
         }
+    }
+
+    /**
+     * 登录
+     * @param emp
+     * @return
+     */
+    @Override
+    public LoginInfo login(Emp emp) {
+        //调用mapper接口,根据用户名和密码查询信息
+        Emp e = empMapper.selectByUsernameAndPassword(emp);
+        //如果存在,封装成功信息
+        if(e != null){
+            log.info("登录成功: {}",e);
+
+            //生成Jwt令牌
+            Map<String ,Object> claims = new HashMap<>();
+            claims.put("id",e.getId());
+            claims.put("username",e.getUsername());
+            String jwt = JwtUtils.generateJwt(claims);
+
+
+            return new LoginInfo(e.getId(),e.getUsername(),e.getName(),jwt);
+        }
+        //不存在, 返回null
+        return null;
     }
 
 }

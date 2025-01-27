@@ -2,6 +2,7 @@ package com.zry.service;
 
 import com.zry.pojo.Emp;
 import com.zry.pojo.EmpQueryParam;
+import com.zry.pojo.LoginInfo;
 import com.zry.pojo.PageResult;
 
 import java.time.LocalDate;
@@ -48,4 +49,11 @@ public interface EmpService {
      * @param emp
      */
     void update(Emp emp);
+
+    /**
+     * 员工登录
+     * @param emp
+     * @return
+     */
+    LoginInfo login(Emp emp);
 }
